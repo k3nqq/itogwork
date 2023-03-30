@@ -1,0 +1,5 @@
+username: "postgres"
+password: "postgrespw"
+host: "localhost"
+port: 32768
+databaseName: "finances"

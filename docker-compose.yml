@@ -1,0 +1,21 @@
+version: "3"
+
+service:
+  api:
+    build: ./
+    ports:
+      - "8080:8888"
+    depends_on:
+      - postgresdb
+  postgresdb:
+    image: postgres
+    ports:
+      - "5000:5432"
+    environment:
+      - POSTGRES_PASSWORD=12345s
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgresql_data:/var/lib/mysql
+volumes:
+  postgresql_data:
