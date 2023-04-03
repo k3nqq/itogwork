@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:conduit_core/conduit_core.dart';
 import 'package:dart_application_1/entity/finance_operation_category_entity.dart';
-import 'package:dart_application_1/model/user.dart';
+import 'package:dart_application_1/model/user_model.dart';
 
 class Migration1 extends Migration {
   @override
@@ -111,9 +111,9 @@ class Migration1 extends Migration {
             isNullable: true,
             isUnique: false));
     database.addColumn(
-        "finance_operation",
+        "itog_work",
         SchemaColumn.relationship(
-            "financeOperationCategory", ManagedPropertyType.bigInteger,
+            "itogWorkCategory", ManagedPropertyType.bigInteger,
             relatedTableName: "operation_category",
             relatedColumnName: "id",
             rule: DeleteRule.nullify,
@@ -126,7 +126,7 @@ class Migration1 extends Migration {
 
   @override
   Future seed() async {
-   /* await store!.executeQuery(
+    /* await store!.executeQuery(
         "INSERT IN operation_category ", {"id": 1, "name": "Кредит"}, 10);
     await store!.executeQuery(
         "INSERT IN operation_category ", {"id": 2, "name": "Ипотека"}, 10);

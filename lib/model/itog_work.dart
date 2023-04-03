@@ -1,12 +1,11 @@
 import 'package:conduit/conduit.dart';
 import 'package:dart_application_1/model/operation_category.dart';
-import 'package:dart_application_1/model/user.dart';
+import 'package:dart_application_1/model/user_model.dart';
 
-class FinanceOperation extends ManagedObject<_FinanceOperation>
-    implements _FinanceOperation {}
+class ItogWork extends ManagedObject<_ItogWork> implements _ItogWork {}
 
-//@Table(name: "finance_operation")
-class _FinanceOperation {
+//@Table(name: "itog_work")
+class _ItogWork {
   @primaryKey
   int? id;
   @Column(unique: true, indexed: true)
@@ -22,7 +21,7 @@ class _FinanceOperation {
   @Relate(#financialOperations, isRequired: true, onDelete: DeleteRule.cascade)
   User? user;
   @Relate(#financialOperations, isRequired: true, onDelete: DeleteRule.cascade)
-  OperationCategory? financeOperationCategory;
+  OperationCategory? ItogWorkCategory;
   @Column(defaultValue: 'false')
   bool? deleted;
 }

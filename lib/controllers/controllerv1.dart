@@ -3,13 +3,13 @@ import 'dart:io';
 import 'package:conduit/conduit.dart';
 import 'package:dart_application_1/model/response_model.dart';
 
-import '../model/user.dart';
+import '../model/user_model.dart';
 import '../utils/app_utils.dart';
 
-class ActionController extends ResourceController {
+class Controllerv1 extends ResourceController {
   final ManagedContext managedContext;
 
-  ActionController(this.managedContext);
+  Controllerv1(this.managedContext);
 
   @Operation.get()
   Future<Response> getCurrentUserActions(

@@ -1,6 +1,6 @@
 import 'package:conduit/conduit.dart';
 import 'package:dart_application_1/model/action_model.dart';
-import 'package:dart_application_1/model/finance_operation.dart';
+import 'package:dart_application_1/model/itog_work.dart';
 
 class User extends ManagedObject<_User> implements _User {}
 
@@ -16,11 +16,11 @@ class _User {
   @Column(nullable: true)
   String? accessToken;
   @Column(nullable: true)
-  String? refreshToken;
+  String? refToken;
   @Column(omitByDefault: true)
   String? hashPassword;
   @Column(omitByDefault: true)
   String? salt;
-  ManagedSet<FinanceOperation>? financialOperations;
+  ManagedSet<ItogWork>? itogOperations;
   ManagedSet<Action>? actions;
 }

@@ -1,5 +1,5 @@
 import 'package:conduit/conduit.dart';
-import 'package:dart_application_1/model/finance_operation.dart';
+import 'package:dart_application_1/model/itog_work.dart';
 
 class OperationCategory extends ManagedObject<_OperationCategory>
     implements _OperationCategory {}
@@ -10,5 +10,5 @@ class _OperationCategory {
   int? id;
   @Column(unique: true, indexed: true)
   String? name;
-  ManagedSet<FinanceOperation>? financialOperations;
+  ManagedSet<ItogWork>? itogWork;
 }

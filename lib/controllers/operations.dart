@@ -1,17 +1,15 @@
 import 'dart:io';
-
+import 'package:dart_application_1/model/itog_work.dart';
+import 'package:dart_application_1/model/response_model.dart';
 import 'package:conduit/conduit.dart';
 import 'package:dart_application_1/model/action_model.dart';
-import 'package:dart_application_1/model/finance_operation.dart';
-import 'package:dart_application_1/model/response_model.dart';
-
-import '../model/user.dart';
+import '../model/user_model.dart';
 import '../utils/app_utils.dart';
 
-class OperationController extends ResourceController {
+class Operations extends ResourceController {
   final ManagedContext managedContext;
 
-  OperationController(this.managedContext);
+  Operations(this.managedContext);
 
   void _createAction(String title, User user) async {
     final qCreateAction = Query<Action>(managedContext)
@@ -23,7 +21,7 @@ class OperationController extends ResourceController {
   @Operation.post()
   Future<Response> addOperation(
       @Bind.header(HttpHeaders.authorizationHeader) String header,
-      @Bind.body() FinanceOperation financeOperation) async {
+      @Bind.body() ItogWork itogWork) async {
     try {
       final id = AppUtils.getIdFromHeader(header);
 
@@ -33,21 +31,20 @@ class OperationController extends ResourceController {
 
       final fUser = await qFindUser.fetchOne();
 
-      final qCreateOperation = Query<FinanceOperation>(managedContext)
-        ..values.name = financeOperation.name
-        ..values.description = financeOperation.description
+      final qCreateOperation = Query<ItogWork>(managedContext)
+        ..values.name = itogWork.name
+        ..values.description = itogWork.description
         ..values.executionDate = DateTime.now()
-        ..values.number = financeOperation.number
-        ..values.totalSum = financeOperation.totalSum
-        ..values.financeOperationCategory!.id =
-            financeOperation.financeOperationCategory!.id
+        ..values.number = itogWork.number
+        ..values.totalSum = itogWork.totalSum
+        ..values.ItogWorkCategory!.id = itogWork.ItogWorkCategory!.id
         ..values.user = fUser;
 
       qCreateOperation.insert();
 
       final user = await managedContext.fetchObjectWithID<User>(id);
       _createAction(
-          "Пользователь '${user!.username}' создал новую операцию '${financeOperation.name}'",
+          "Пользователь '${user!.username}' создал новую операцию '${itogWork.name}'",
           user);
 
       return Response.ok(ModelResponse(message: "Операция создана"));
@@ -61,7 +58,7 @@ class OperationController extends ResourceController {
   @Operation.put('operationId')
   Future<Response> updateOperation(
       @Bind.header(HttpHeaders.authorizationHeader) String header,
-      @Bind.body() FinanceOperation financeOperation,
+      @Bind.body() ItogWork itogWork,
       @Bind.path('operationId') int operationId) async {
     try {
       final id = AppUtils.getIdFromHeader(header);
@@ -72,17 +69,16 @@ class OperationController extends ResourceController {
 
       final fUser = await qFindUser.fetchOne();
       final oldOperation =
-          await managedContext.fetchObjectWithID<FinanceOperation>(operationId);
+          await managedContext.fetchObjectWithID<ItogWork>(operationId);
 
-      final qUpdateOperation = Query<FinanceOperation>(managedContext)
+      final qUpdateOperation = Query<ItogWork>(managedContext)
         ..where((x) => x.id).equalTo(operationId)
-        ..values.name = financeOperation.name
-        ..values.description = financeOperation.description
+        ..values.name = itogWork.name
+        ..values.description = itogWork.description
         ..values.executionDate = DateTime.now()
-        ..values.number = financeOperation.number
-        ..values.totalSum = financeOperation.totalSum
-        ..values.financeOperationCategory!.id =
-            financeOperation.financeOperationCategory!.id
+        ..values.number = itogWork.number
+        ..values.totalSum = itogWork.totalSum
+        ..values.ItogWorkCategory!.id = itogWork.ItogWorkCategory!.id
         ..values.user!.id = fUser!.id;
 
       qUpdateOperation.updateOne();
@@ -106,12 +102,12 @@ class OperationController extends ResourceController {
     try {
       final id = AppUtils.getIdFromHeader(header);
       final operation =
-          await managedContext.fetchObjectWithID<FinanceOperation>(operationId);
-      var query = Query<FinanceOperation>(managedContext)
+          await managedContext.fetchObjectWithID<ItogWork>(operationId);
+      var query = Query<ItogWork>(managedContext)
         ..where((x) => x.id).equalTo(operationId);
 
       //await query.delete();
-      query..values.deleted = true;
+      query..values.deleted = false;
       query.updateOne();
 
       final user = await managedContext.fetchObjectWithID<User>(id);
@@ -126,30 +122,29 @@ class OperationController extends ResourceController {
   }
 
   @Operation.get()
-  Future<Response> getAllOperations(@Bind.header(HttpHeaders.authorizationHeader) String header,) async {
+  Future<Response> getAllOperations(
+    @Bind.header(HttpHeaders.authorizationHeader) String header,
+  ) async {
     try {
       final id = AppUtils.getIdFromHeader(header);
       final user = await managedContext.fetchObjectWithID<User>(id);
 
-      var query = Query<FinanceOperation>(managedContext)
+      var query = Query<ItogWork>(managedContext)
         ..join(
           object: (x) => x.user,
-        )
-        ..join(
-          object: (x) => x.financeOperationCategory,
-        )..where((x) => x.user!.id).equalTo(id);
+        );
 
-      List<FinanceOperation> operations = await query.fetch();
+      List<ItogWork> operations = await query.fetch();
 
       for (var operation in operations) {
         operation.user!
-            .removePropertiesFromBackingMap(['accessToken', 'refreshToken']);
+            .removePropertiesFromBackingMap(['accessToken', 'refToken']);
       }
 
       return Response.ok(operations);
     } catch (e) {
       return Response.badRequest(
-          body: ModelResponse(message: "Не удалось получить данные"));
+          body: ModelResponse(message: "Не удалось получить информацию"));
     }
   }
 
@@ -157,22 +152,19 @@ class OperationController extends ResourceController {
   Future<Response> getOperationById(
       @Bind.path('operationId') int operationId) async {
     try {
-      var query = Query<FinanceOperation>(managedContext)
+      var query = Query<ItogWork>(managedContext)
         ..join(object: (x) => x.user)
-        ..join(
-          object: (x) => x.financeOperationCategory,
-        )
         ..where((x) => x.id).equalTo(operationId);
 
       final operation = await query.fetchOne();
 
       if (operation == null) {
         return Response.badRequest(
-            body: ModelResponse(message: "Операция с таким ID не найдена"));
+            body: ModelResponse(message: "Номер данной операции не найден"));
       }
 
       operation.user!
-          .removePropertiesFromBackingMap(['refreshToken', 'accessToken']);
+          .removePropertiesFromBackingMap(['refToken', 'accessToken']);
       return Response.ok(operation);
     } catch (e) {
       return Response.badRequest(

@@ -1,14 +1,12 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:conduit/conduit.dart';
 import 'package:dart_application_1/model/response_model.dart';
 import 'package:dart_application_1/utils/app_utils.dart';
-
+import 'dart:async';
+import 'dart:io';
 import '../model/user.dart';
 
-class AppUserController extends ResourceController {
-  AppUserController(this.managedContext);
+class user_contrl extends ResourceController {
+  user_contrl(this.managedContext);
 
   final ManagedContext managedContext;
 
@@ -20,13 +18,13 @@ class AppUserController extends ResourceController {
 
       final user = await managedContext.fetchObjectWithID<User>(id);
 
-      user!.removePropertiesFromBackingMap(['refreshToken', 'accessToken']);
+      user!.removePropertiesFromBackingMap(['refToken', 'accessToken']);
 
       return Response.ok(ModelResponse(
-          data: user.backing.contents, message: 'Профиль успешно получен'));
+          data: user.backing.contents, message: 'Профиль успешно изменен'));
     } catch (e) {
       return Response.serverError(
-          body: ModelResponse(message: 'Не удалось получить профиль'));
+          body: ModelResponse(message: 'Невозможно получить информцию'));
     }
   }
 
@@ -50,18 +48,18 @@ class AppUserController extends ResourceController {
 
       fUser!.removePropertiesFromBackingMap(['refreshToken', 'accessToken']);
       return Response.ok(ModelResponse(
-          data: fUser.backing.contents, message: 'Данные успешно обновлены'));
+          data: fUser.backing.contents, message: 'Информация обновлена'));
     } catch (e) {
       return Response.serverError(
-          body: ModelResponse(message: 'Не удалось обновить профиль'));
+          body: ModelResponse(message: 'Не удалось обновить данные профиля'));
     }
   }
 
   @Operation.put()
   Future<Response> updatePassword(
     @Bind.header(HttpHeaders.authorizationHeader) String header,
-    @Bind.query('newPassword') String newPassword,
-    @Bind.query('oldPassword') String oldPassword,
+    @Bind.query('newPass') String newPassword,
+    @Bind.query('oldPass') String oldPassword,
   ) async {
     try {
       final id = AppUtils.getIdFromHeader(header);

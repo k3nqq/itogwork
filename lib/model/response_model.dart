@@ -6,5 +6,5 @@ class ModelResponse {
   final dynamic message;
 
   Map<String, dynamic> toJson() =>
-      {'error': error ?? '', 'data': data ?? '', 'message': message ?? ''};
+      {'data': data ?? '', 'error': error ?? '', 'message': message ?? ''};
 }

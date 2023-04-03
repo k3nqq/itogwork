@@ -8,6 +8,6 @@ RUN dart pub get
 
 RUN dart pub global activate conduit 4.1.8
 
-EXPOSE 8888
+EXPOSE 8080
 
-ENTRYPOINT [ "dart", "pub", "run", "conduit:conduit", "serve", "--port", "8888"]
+ENTRYPOINT [ "dart", "pub", "run", "conduit:conduit", "serve", "--port", "8080"]

@@ -1,14 +1,13 @@
-
 import 'dart:io';
 import 'package:conduit/conduit.dart';
 import 'package:dart_application_1/model/response_model.dart';
-import 'package:dart_application_1/model/user.dart';
+import 'package:dart_application_1/model/user_model.dart';
 import 'package:jaguar_jwt/jaguar_jwt.dart';
 
 import '../utils/app_utils.dart';
 
-class AppAuthController extends ResourceController {
-  AppAuthController(this.managedContext);
+class Auth extends ResourceController {
+  Auth(this.managedContext);
 
   final ManagedContext managedContext;
 
@@ -17,7 +16,7 @@ class AppAuthController extends ResourceController {
     if (user.password == null || user.username == null) {
       return Response.badRequest(
         body: ModelResponse(
-          message: 'Поля username и password обязательны',
+          message: 'Обязательный поля не были заполнены',
         ),
       );
     }
@@ -31,7 +30,9 @@ class AppAuthController extends ResourceController {
             ]);
       final findUser = await qFindUser.fetchOne();
       if (findUser == null) {
-        throw QueryException.input('Пользователь не найден', []);
+        throw QueryException.input(
+            'Проверьте корректность введных вами данных, данная учетная запись не найдена',
+            []);
       }
       final requestHashPassword = generatePasswordHash(
         user.password ?? '',
@@ -44,7 +45,6 @@ class AppAuthController extends ResourceController {
         return Response.ok(
           ModelResponse(
             data: newUser!.backing.contents,
-            message: 'Успешная авторизация',
           ),
         );
       } else {
@@ -100,20 +100,19 @@ class AppAuthController extends ResourceController {
     final qUpdateTokens = Query<User>(managedContext)
       ..where((element) => element.id).equalTo(id)
       ..values.accessToken = tokens['access']
-      ..values.refreshToken = tokens['refresh'];
+      ..values.refToken = tokens['refresh'];
 
     await qUpdateTokens.updateOne();
   }
 
-  @Operation.post('refresh')
-  Future<Response> refreshToken(
-      @Bind.path('refresh') String refreshToken) async {
+  @Operation.post('ref')
+  Future<Response> refreshToken(@Bind.path('ref') String refreshToken) async {
     try {
       final id = AppUtils.getIdFromToken(refreshToken);
 
       final user = await managedContext.fetchObjectWithID<User>(id);
 
-      if (user!.refreshToken != refreshToken) {
+      if (user!.refToken != refreshToken) {
         Response.unauthorized(body: 'Токен не валидный');
       }
 
@@ -130,7 +129,7 @@ class AppAuthController extends ResourceController {
 
     final accessClaimSet =
         JwtClaim(maxAge: const Duration(hours: 1), otherClaims: {'id': id});
-    final refreshClaimSet = JwtClaim(otherClaims: {'id' : id});
+    final refreshClaimSet = JwtClaim(otherClaims: {'id': id});
 
     final tokens = <String, String>{};
     tokens['access'] = issueJwtHS256(accessClaimSet, key);

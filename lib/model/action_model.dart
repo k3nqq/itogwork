@@ -1,5 +1,5 @@
 import 'package:conduit/conduit.dart';
-import 'package:dart_application_1/model/user.dart';
+import 'package:dart_application_1/model/user_model.dart';
 
 class Action extends ManagedObject<_Action> implements _Action {}
 
